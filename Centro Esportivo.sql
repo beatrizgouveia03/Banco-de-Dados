@@ -1,52 +1,49 @@
-CREATE TABLE [Atleta] (
-	[idAtleta] int IDENTITY(1,1) NOT NULL UNIQUE,
-	[nomeAtleta] nvarchar(max) NOT NULL,
-	[dataNascimento] date NOT NULL,
-	PRIMARY KEY ([idAtleta])
+CREATE TABLE IF NOT EXISTS "atleta" (
+	"idatleta" bigint NOT NULL UNIQUE,
+	"datanascimento" date NOT NULL,
+	PRIMARY KEY ("idatleta")
 );
 
-CREATE TABLE [Treinador] (
-	[idTreinador] int IDENTITY(1,1) NOT NULL UNIQUE,
-	[nomeTreinador] nvarchar(max) NOT NULL,
-	PRIMARY KEY ([idTreinador])
+CREATE TABLE IF NOT EXISTS "treinador" (
+	"idtreinador" bigint NOT NULL UNIQUE,
+	PRIMARY KEY ("idtreinador")
 );
 
-CREATE TABLE [Modalidade] (
-	[idModalidade] int IDENTITY(1,1) NOT NULL UNIQUE,
-	[nomeModalidade] nvarchar(max) NOT NULL,
-	PRIMARY KEY ([idModalidade])
+CREATE TABLE IF NOT EXISTS "modalidade" (
+	"idmodalidade" bigint NOT NULL UNIQUE,
+	PRIMARY KEY ("idmodalidade")
 );
 
-CREATE TABLE [Rel_Atl_Mod] (
-	[idAtleta] int NOT NULL,
-	[idModalidade] int NOT NULL,
-	[idRel_Atl_Mod] int IDENTITY(1,1) NOT NULL UNIQUE,
-	PRIMARY KEY ([idRel_Atl_Mod])
+CREATE TABLE IF NOT EXISTS "rel_atl_mod" (
+	"idatleta" bigint NOT NULL,
+	"idmodalidade" bigint NOT NULL,
+	"idrel_atl_mod" bigint NOT NULL UNIQUE,
+	PRIMARY KEY ("idrel_atl_mod")
 );
 
-CREATE TABLE [Rel_Trei_Mod] (
-	[idRel_Trei_Mod] int IDENTITY(1,1) NOT NULL UNIQUE,
-	[idTreinador] int NOT NULL,
-	[idModalidade] int NOT NULL,
-	PRIMARY KEY ([idRel_Trei_Mod])
+CREATE TABLE IF NOT EXISTS "rel_trei_mod" (
+	"idrel_trei_mod" bigint NOT NULL UNIQUE,
+	"idtreinador" bigint NOT NULL,
+	"idmodalidade" bigint NOT NULL,
+	PRIMARY KEY ("idrel_trei_mod")
 );
 
-CREATE TABLE [Rel_Atl_Trei] (
-	[idRel_Atl_Trei] int IDENTITY(1,1) NOT NULL UNIQUE,
-	[idAtleta] int NOT NULL,
-	[idTreinador] int NOT NULL,
-	PRIMARY KEY ([idRel_Atl_Trei])
+CREATE TABLE IF NOT EXISTS "rel_atl_trei" (
+	"idrel_atl_trei" bigint NOT NULL UNIQUE,
+	"idatleta" bigint NOT NULL,
+	"idtreinador" bigint NOT NULL,
+	PRIMARY KEY ("idrel_atl_trei")
 );
 
 
 
 
-ALTER TABLE [Rel_Atl_Mod] ADD CONSTRAINT [Rel_Atl_Mod_fk0] FOREIGN KEY ([idAtleta]) REFERENCES [Atleta]([idAtleta]);
+ALTER TABLE "rel_atl_mod" ADD CONSTRAINT "rel_atl_mod_fk0" FOREIGN KEY ("idatleta") REFERENCES "atleta"("idatleta");
 
-ALTER TABLE [Rel_Atl_Mod] ADD CONSTRAINT [Rel_Atl_Mod_fk1] FOREIGN KEY ([idModalidade]) REFERENCES [Modalidade]([idModalidade]);
-ALTER TABLE [Rel_Trei_Mod] ADD CONSTRAINT [Rel_Trei_Mod_fk1] FOREIGN KEY ([idTreinador]) REFERENCES [Treinador]([idTreinador]);
+ALTER TABLE "rel_atl_mod" ADD CONSTRAINT "rel_atl_mod_fk1" FOREIGN KEY ("idmodalidade") REFERENCES "modalidade"("idmodalidade");
+ALTER TABLE "rel_trei_mod" ADD CONSTRAINT "rel_trei_mod_fk1" FOREIGN KEY ("idtreinador") REFERENCES "treinador"("idtreinador");
 
-ALTER TABLE [Rel_Trei_Mod] ADD CONSTRAINT [Rel_Trei_Mod_fk2] FOREIGN KEY ([idModalidade]) REFERENCES [Modalidade]([idModalidade]);
-ALTER TABLE [Rel_Atl_Trei] ADD CONSTRAINT [Rel_Atl_Trei_fk1] FOREIGN KEY ([idAtleta]) REFERENCES [Atleta]([idAtleta]);
+ALTER TABLE "rel_trei_mod" ADD CONSTRAINT "rel_trei_mod_fk2" FOREIGN KEY ("idmodalidade") REFERENCES "modalidade"("idmodalidade");
+ALTER TABLE "rel_atl_trei" ADD CONSTRAINT "rel_atl_trei_fk1" FOREIGN KEY ("idatleta") REFERENCES "atleta"("idatleta");
 
-ALTER TABLE [Rel_Atl_Trei] ADD CONSTRAINT [Rel_Atl_Trei_fk2] FOREIGN KEY ([idTreinador]) REFERENCES [Treinador]([idTreinador]);
+ALTER TABLE "rel_atl_trei" ADD CONSTRAINT "rel_atl_trei_fk2" FOREIGN KEY ("idtreinador") REFERENCES "treinador"("idtreinador");
