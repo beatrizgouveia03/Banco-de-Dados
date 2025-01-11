@@ -1,3 +1,5 @@
+/* SCRIPTS DE CRIAÇÃO DAS TABELAS */
+
 -- Criando a tabela Person
 CREATE TABLE Person (
   idPerson SERIAL NOT NULL,
@@ -15,13 +17,13 @@ CREATE TABLE Genre (
   PRIMARY KEY (idGenre)
 );
 
--- Criando a tabela Adress
-CREATE TABLE Adress (
-  idAdress SERIAL NOT NULL,
-  streetAdress VARCHAR(100),
-  cityAdress VARCHAR(50),
-  postalCodeAdress VARCHAR(20),
-  PRIMARY KEY (idAdress)
+-- Criando a tabela Address
+CREATE TABLE Address (
+  idAddress SERIAL NOT NULL,
+  streetAddress VARCHAR(100),
+  cityAddress VARCHAR(50),
+  postalCodeAddress VARCHAR(20),
+  PRIMARY KEY (idAddress)
 );
 
 -- Criando a tabela Author
@@ -30,6 +32,7 @@ CREATE TABLE Author (
   nameAuthor VARCHAR(50),
   nationalityAuthor VARCHAR(30),
   biographyAuthor TEXT,
+  dateOfBirthAuthor DATE,
   PRIMARY KEY (idAuthor)
 );
 
@@ -39,9 +42,8 @@ CREATE TABLE Book (
   titleBook VARCHAR(100),
   isbnBook VARCHAR(20) UNIQUE,
   publicationYearBook SMALLINT,
-  totalAmountBook INT,
-  disponibleAmountBook INT,
   descriptionBook TEXT,
+  searchLevel VARCHAR(7),
   PRIMARY KEY (idBook)
 );
 
@@ -79,61 +81,89 @@ CREATE TABLE Phone (
 -- Criando a tabela Publisher
 CREATE TABLE Publisher (
   idPublisher SERIAL NOT NULL,
+  idAddress INT NOT NULL,
   namePublisher VARCHAR(50),
   contactEmailPublisher VARCHAR(50),
-  idAdress INT NOT NULL,
+  cnpjPublisher VARCHAR(14),
   PRIMARY KEY (idPublisher),
-  FOREIGN KEY (idAdress) REFERENCES Adress(idAdress) ON DELETE CASCADE
+  FOREIGN KEY (idAddress) REFERENCES Address(idAddress) ON DELETE CASCADE
 );
 
 -- Criando a tabela Book-Genre
 CREATE TABLE Book_has_Genre (
+  idBook_has_Genre SERIAL NOT NULL,
   idBook INT NOT NULL,
   idGenre INT NOT NULL,
-  PRIMARY KEY (idBook, idGenre),
+  PRIMARY KEY (idBook_has_Genre),
   FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE,
   FOREIGN KEY (idGenre) REFERENCES Genre(idGenre) ON DELETE CASCADE
 );
 
 -- Criando a tabela Book-Author
 CREATE TABLE Book_has_Author (
+  idBook_has_Author SERIAL NOT NULL,
   idBook INT NOT NULL,
   idAuthor INT NOT NULL,
-  PRIMARY KEY (idBook, idAuthor),
+  PRIMARY KEY (idBook_has_Author),
   FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE,
   FOREIGN KEY (idAuthor) REFERENCES Author(idAuthor) ON DELETE CASCADE
 );
 
 -- Criando a tabela Book-Publisher
 CREATE TABLE Book_has_Publisher (
-  idPublisher INT NOT NULL,
+  idBook_has_Publisher SERIAL NOT NULL,
   idBook INT NOT NULL,
-  PRIMARY KEY (idPublisher, idBook),
-  FOREIGN KEY (idPublisher) REFERENCES Publisher(idPublisher) ON DELETE CASCADE,
+  idPublisher INT NOT NULL,
+  PRIMARY KEY (idBook_has_Publisher),
+  FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE,
+  FOREIGN KEY (idPublisher) REFERENCES Publisher(idPublisher) ON DELETE CASCADE
+);
+
+-- Criando a tabela Person-Address
+CREATE TABLE Person_has_Address (
+  idPerson_has_Address SERIAL NOT NULL,
+  idPerson INT NOT NULL,
+  idAddress INT NOT NULL,
+  PRIMARY KEY (idPerson_has_Address),
+  FOREIGN KEY (idPerson) REFERENCES Person(idPerson) ON DELETE CASCADE,
+  FOREIGN KEY (idAddress) REFERENCES Address(idAddress) ON DELETE CASCADE
+);
+
+-- Criando a tabela Copy
+-- Possíveis status do exemplar: Emprestado('BORROWED'), Reservado('RESERVED'), Danificado('DAMAGED') ou Disponível('AVAILABLE')
+CREATE TABLE Copy (
+  idCopy SERIAL NOT NULL,
+  idBook INTEGER NOT NULL,
+  statusCopy VARCHAR(10) CHECK(statusCopy IN ('BORROWED', 'RESERVED', 'DAMAGED', 'AVAILABLE' )),
+  PRIMARY KEY (idCopy),
   FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE
 );
 
--- Criando a tabela Person-Adress
-CREATE TABLE Person_has_Adress (
-  idAdress INT NOT NULL,
-  idPerson INT NOT NULL,
-  PRIMARY KEY (idAdress, idPerson),
-  FOREIGN KEY (idAdress) REFERENCES Adress(idAdress) ON DELETE CASCADE,
-  FOREIGN KEY (idPerson) REFERENCES Person(idPerson) ON DELETE CASCADE
+-- Criando a tabela Reservation
+-- Possíveis status da reserva: Ativa('ACTIVE') ou Finalizada('FINISHED')
+CREATE TABLE Reservation (
+  idReservation SERIAL NOT NULL,
+  idUser INTEGER NOT NULL,
+  idCopy INTEGER NOT NULL,
+  dateReservation DATE,
+  statusReservation VARCHAR(10) CHECK(statusReservation IN ('ACTIVE', 'FINISHED')),
+  PRIMARY KEY (idReservation),
+  FOREIGN KEY (idUser) REFERENCES SUser(idUser) ON DELETE CASCADE,
+  FOREIGN KEY (idCopy) REFERENCES Copy(idCopy) ON DELETE CASCADE
 );
 
 -- Criando a tabela Loan
 -- Possíveis status do empréstimo: Emprestado('BORROWED'), Devolvido('RETURNED'), Atrasado('OVERDUE')
 CREATE TABLE Loan (
   idLoan SERIAL NOT NULL,
-  idBook INT NOT NULL,
+  idCopy INT NOT NULL,
   idUser INT NOT NULL,
   dateLoan DATE,
   dueReturnDateLoan DATE,
   actualReturnDateLoan DATE,
-  statusLoan VARCHAR(10) NOT NULL CHECK(statusLoan IN ('BORROWED', 'RETURNED', 'OVERDUE')),
+  statusLoan VARCHAR(10) CHECK(statusLoan IN ('BORROWED', 'RETURNED', 'OVERDUE')),
   PRIMARY KEY (idLoan),
-  FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE,
+  FOREIGN KEY (idCopy) REFERENCES Copy(idCopy) ON DELETE CASCADE,
   FOREIGN KEY (idUser) REFERENCES SUser(idUser) ON DELETE CASCADE
 );
 
@@ -143,7 +173,7 @@ CREATE TABLE Fine (
   idFine SERIAL NOT NULL,
   idLoan INT NOT NULL,
   amountFine DECIMAL(10, 2),
-  paymentStatusFine VARCHAR(10) NOT NULL CHECK(paymentStatusFine IN ('PENDING', 'PAID')),
+  paymentStatusFine VARCHAR(10) CHECK(paymentStatusFine IN ('PENDING', 'PAID')),
   PRIMARY KEY (idFine),
   FOREIGN KEY (idLoan) REFERENCES Loan(idLoan) ON DELETE CASCADE
 );
