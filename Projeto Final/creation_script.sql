@@ -1,44 +1,42 @@
+-- Criando a tabela Person
 CREATE TABLE Person (
   idPerson SERIAL NOT NULL,
-  namePerson VARCHAR(255),
-  emailPerson VARCHAR(255),
+  namePerson VARCHAR(50),
+  emailPerson VARCHAR(50),
   dateOfBirthPerson DATE,
   PRIMARY KEY (idPerson)
 );
 
-CREATE TABLE Publisher (
-  idPublisher SERIAL NOT NULL,
-  namePublisher VARCHAR(255),
-  contactEmailPublisher VARCHAR(255),
-  PRIMARY KEY (idPublisher)
-);
-
+-- Criando a tabela Genre
 CREATE TABLE Genre (
   idGenre SERIAL NOT NULL,
-  nameGenre VARCHAR(255),
+  nameGenre VARCHAR(40),
   descriptionGenre TEXT,
   PRIMARY KEY (idGenre)
 );
 
+-- Criando a tabela Adress
 CREATE TABLE Adress (
   idAdress SERIAL NOT NULL,
-  streetAdress VARCHAR(255),
-  cityAdress VARCHAR(255),
+  streetAdress VARCHAR(100),
+  cityAdress VARCHAR(50),
   postalCodeAdress VARCHAR(20),
   PRIMARY KEY (idAdress)
 );
 
+-- Criando a tabela Author
 CREATE TABLE Author (
   idAuthor SERIAL NOT NULL,
-  nameAuthor VARCHAR(255),
-  nationalityAuthor VARCHAR(100),
+  nameAuthor VARCHAR(50),
+  nationalityAuthor VARCHAR(30),
   biographyAuthor TEXT,
   PRIMARY KEY (idAuthor)
 );
 
+-- Criando a tabela Book
 CREATE TABLE Book (
   idBook SERIAL NOT NULL,
-  titleBook VARCHAR(255),
+  titleBook VARCHAR(100),
   isbnBook VARCHAR(20) UNIQUE,
   publicationYearBook SMALLINT,
   totalAmountBook INT,
@@ -47,7 +45,8 @@ CREATE TABLE Book (
   PRIMARY KEY (idBook)
 );
 
-CREATE TABLE User (
+-- Criando a tabela SUser
+CREATE TABLE SUser (
   idUser SERIAL NOT NULL,
   idPerson INT NOT NULL,
   registrationDateUser DATE,
@@ -55,6 +54,7 @@ CREATE TABLE User (
   FOREIGN KEY (idPerson) REFERENCES Person(idPerson) ON DELETE CASCADE
 );
 
+-- Criando a tabela Staff
 CREATE TABLE Staff (
   idStaff SERIAL NOT NULL,
   idPerson INT NOT NULL,
@@ -64,35 +64,29 @@ CREATE TABLE Staff (
   FOREIGN KEY (idPerson) REFERENCES Person(idPerson) ON DELETE CASCADE
 );
 
+-- Criando a tabela Phone
+-- Possíveis tipos de telefone : Móvel('MOBILE'), Fixo('FIXED'), Comercial('COMMERCIAL')
 CREATE TABLE Phone (
   idPhone SERIAL NOT NULL,
   idPerson INT NOT NULL,
   dddPhone VARCHAR(2),
   numberPhone VARCHAR(9),
-  typePhone ENUM('mobile', 'home', 'work') DEFAULT 'mobile',
+  typePhone VARCHAR(10) NOT NULL CHECK(typePhone IN ('MOBILE', 'FIXED', 'COMMERCIAL')),
   PRIMARY KEY (idPhone),
   FOREIGN KEY (idPerson) REFERENCES Person(idPerson) ON DELETE CASCADE
 );
 
-CREATE TABLE Reservation (
-  idReservation SERIAL NOT NULL,
-  idUser INT NOT NULL,
-  idBook INT NOT NULL,
-  dateReservation DATE,
-  statusReservation ENUM('active', 'completed', 'canceled') DEFAULT 'active',
-  PRIMARY KEY (idReservation),
-  FOREIGN KEY (idUser) REFERENCES User(idUser) ON DELETE CASCADE,
-  FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE
-);
-
-CREATE TABLE Publisher_has_Adress (
-  idPublisher INT NOT NULL,
+-- Criando a tabela Publisher
+CREATE TABLE Publisher (
+  idPublisher SERIAL NOT NULL,
+  namePublisher VARCHAR(50),
+  contactEmailPublisher VARCHAR(50),
   idAdress INT NOT NULL,
-  PRIMARY KEY (idPublisher, idAdress),
-  FOREIGN KEY (idPublisher) REFERENCES Publisher(idPublisher) ON DELETE CASCADE,
+  PRIMARY KEY (idPublisher),
   FOREIGN KEY (idAdress) REFERENCES Adress(idAdress) ON DELETE CASCADE
 );
 
+-- Criando a tabela Book-Genre
 CREATE TABLE Book_has_Genre (
   idBook INT NOT NULL,
   idGenre INT NOT NULL,
@@ -101,6 +95,7 @@ CREATE TABLE Book_has_Genre (
   FOREIGN KEY (idGenre) REFERENCES Genre(idGenre) ON DELETE CASCADE
 );
 
+-- Criando a tabela Book-Author
 CREATE TABLE Book_has_Author (
   idBook INT NOT NULL,
   idAuthor INT NOT NULL,
@@ -109,6 +104,7 @@ CREATE TABLE Book_has_Author (
   FOREIGN KEY (idAuthor) REFERENCES Author(idAuthor) ON DELETE CASCADE
 );
 
+-- Criando a tabela Book-Publisher
 CREATE TABLE Book_has_Publisher (
   idPublisher INT NOT NULL,
   idBook INT NOT NULL,
@@ -117,6 +113,7 @@ CREATE TABLE Book_has_Publisher (
   FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE
 );
 
+-- Criando a tabela Person-Adress
 CREATE TABLE Person_has_Adress (
   idAdress INT NOT NULL,
   idPerson INT NOT NULL,
@@ -125,6 +122,8 @@ CREATE TABLE Person_has_Adress (
   FOREIGN KEY (idPerson) REFERENCES Person(idPerson) ON DELETE CASCADE
 );
 
+-- Criando a tabela Loan
+-- Possíveis status do empréstimo: Emprestado('BORROWED'), Devolvido('RETURNED'), Atrasado('OVERDUE')
 CREATE TABLE Loan (
   idLoan SERIAL NOT NULL,
   idBook INT NOT NULL,
@@ -132,17 +131,19 @@ CREATE TABLE Loan (
   dateLoan DATE,
   dueReturnDateLoan DATE,
   actualReturnDateLoan DATE,
-  statusLoan ENUM('borrowed', 'returned', 'overdue') DEFAULT 'borrowed',
+  statusLoan VARCHAR(10) NOT NULL CHECK(statusLoan IN ('BORROWED', 'RETURNED', 'OVERDUE')),
   PRIMARY KEY (idLoan),
   FOREIGN KEY (idBook) REFERENCES Book(idBook) ON DELETE CASCADE,
-  FOREIGN KEY (idUser) REFERENCES User(idUser) ON DELETE CASCADE
+  FOREIGN KEY (idUser) REFERENCES SUser(idUser) ON DELETE CASCADE
 );
 
+-- Criando a tabela Fine
+-- Possíveis status do multa: Pendente('PENDING'), Paga('PAID')
 CREATE TABLE Fine (
   idFine SERIAL NOT NULL,
   idLoan INT NOT NULL,
   amountFine DECIMAL(10, 2),
-  paymentStatusFine ENUM('unpaid', 'paid') DEFAULT 'unpaid',
+  paymentStatusFine VARCHAR(10) NOT NULL CHECK(paymentStatusFine IN ('PENDING', 'PAID')),
   PRIMARY KEY (idFine),
   FOREIGN KEY (idLoan) REFERENCES Loan(idLoan) ON DELETE CASCADE
 );
