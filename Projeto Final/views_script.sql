@@ -114,7 +114,7 @@ SELECT
     r.idReservation AS ID,
     p.namePerson AS Usuário,
     b.titleBook AS Exemplar,
-    r.dateReservation AS DataReserva,
+    r.dateReservation AS DataReserva
 FROM Reservation r
 
 JOIN SUser u ON u.idUser = r.idUser
@@ -147,7 +147,7 @@ CREATE OR REPLACE VIEW vw_list_pending_fines AS
 SELECT
     f.idFine AS ID,
     p.namePerson AS Usuário,
-    f.amountFine AS Valor,
+    f.amountFine AS Valor
 FROM Fine f
 
 JOIN Loan l ON l.idLoan = f.idLoan
